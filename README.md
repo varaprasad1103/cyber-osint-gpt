@@ -58,6 +58,7 @@ python src/scraper.py
 
 ```
 ## Project Structure
+```bash
 cyber-osint-gpt/
 │
 ├── data/          # Raw and processed cyber incident data
@@ -66,6 +67,7 @@ cyber-osint-gpt/
 ├── requirements.txt
 ├── README.md
 └── .env
+```
 
 ---
 # Team Members
@@ -92,6 +94,7 @@ Multi-model threat correlation
 
 Automated incident classification and tagging
 ---
+
 
 
 
