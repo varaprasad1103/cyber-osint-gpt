@@ -69,13 +69,13 @@ cyber-osint-gpt/
 
 ---
 # Team Members
-## P. Venkata Sai Anish (22EG105A45)
+P. Venkata Sai Anish (22EG105A45)
 
-## D. Harshith Reddy (22EG105A21)
+D. Harshith Reddy (22EG105A21)
 
-## S. Varaprasad (22EG105A51)
+S. Varaprasad (22EG105A51)
 
-## T. Akshara (22EG105A65)
+T. Akshara (22EG105A65)
 ---
 
 ---
@@ -98,6 +98,7 @@ Multi-model threat correlation
 
 Automated incident classification and tagging
 ---
+
 
 
 
