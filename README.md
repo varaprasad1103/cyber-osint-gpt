@@ -77,17 +77,11 @@ S. Varaprasad (22EG105A51)
 
 T. Akshara (22EG105A65)
 ---
-
----
 # 🎓 Project Guide
 ## Dr. G. Vishnu Murthy
 ---
----
-
 # 📄 License
 ## This project is developed for academic and research purposes only.
----
-
 ---
 # 🔮 Future Scope
 Integration with real-time threat feeds
@@ -98,6 +92,7 @@ Multi-model threat correlation
 
 Automated incident classification and tagging
 ---
+
 
 
 
