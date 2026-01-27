@@ -1,0 +1,11 @@
+# Core packages (no compilation needed)
+requests
+beautifulsoup4
+nltk
+openai
+python-dotenv
+
+# These will install latest compatible versions
+# numpy and pandas will auto-install compatible pre-built versions
+matplotlib
+seaborn
