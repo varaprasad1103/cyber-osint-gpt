@@ -9,3 +9,6 @@ python-dotenv
 # numpy and pandas will auto-install compatible pre-built versions
 matplotlib
 seaborn
+
+transformers
+torch

@@ -1,23 +1,10 @@
 # src/preprocessor.py
 import re
 import json
-import nltk
 import os
-
-# Download NLTK data
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    print("Downloading NLTK data...")
-    nltk.download('punkt')
-    nltk.download('stopwords')
-
-from nltk.tokenize import sent_tokenize
-from nltk.corpus import stopwords
 
 class TextPreprocessor:
     def __init__(self):
-        self.stop_words = set(stopwords.words('english'))
         os.makedirs('data/processed', exist_ok=True)
     
     def clean_text(self, text):
@@ -30,18 +17,59 @@ class TextPreprocessor:
         
         return text.strip()
     
+    def extract_sentences(self, text):
+        """Simple sentence extraction without NLTK"""
+        if not text:
+            return []
+        
+        # Split on periods, question marks, exclamation marks
+        sentences = re.split(r'[.!?]+', text)
+        # Filter out short fragments
+        sentences = [s.strip() for s in sentences if len(s.strip()) > 20]
+        return sentences
+    
+    def extract_cyber_entities(self, text):
+        """Extract cyber security entities"""
+        entities = {
+            'cves': [],
+            'malware': [],
+            'attack_types': []
+        }
+        
+        # Extract CVEs
+        cve_pattern = r'CVE-\d{4}-\d{4,7}'
+        entities['cves'] = list(set(re.findall(cve_pattern, text)))
+        
+        # Common attack types
+        attack_keywords = ['ransomware', 'phishing', 'ddos', 'malware', 
+                          'sql injection', 'zero-day', 'vulnerability',
+                          'exploit', 'botnet', 'trojan']
+        
+        text_lower = text.lower()
+        for attack in attack_keywords:
+            if attack in text_lower:
+                entities['attack_types'].append(attack)
+        
+        return entities
+    
     def preprocess_incident(self, incident):
         full_text = incident.get('text', '') or incident.get('snippet', '')
         cleaned = self.clean_text(full_text)
+        
+        sentences = self.extract_sentences(cleaned)
+        entities = self.extract_cyber_entities(cleaned)
         
         processed = {
             'id': incident.get('id', ''),
             'source': incident.get('source', ''),
             'title': incident.get('title', ''),
             'url': incident.get('url', ''),
+            'date': incident.get('date', ''),
             'cleaned_text': cleaned,
-            'sentences': sent_tokenize(cleaned) if cleaned else [],
-            'word_count': len(cleaned.split())
+            'sentences': sentences,
+            'word_count': len(cleaned.split()),
+            'sentence_count': len(sentences),
+            'entities': entities
         }
         
         return processed
@@ -68,13 +96,32 @@ class TextPreprocessor:
         for i, inc in enumerate(incidents, 1):
             p = self.preprocess_incident(inc)
             processed.append(p)
-            print(f"[{i}/{len(incidents)}] {p['title'][:50]}... ({p['word_count']} words)")
+            print(f"[{i}/{len(incidents)}] {p['title'][:60]}...")
+            print(f"    Words: {p['word_count']}, Sentences: {p['sentence_count']}")
+            if p['entities']['cves']:
+                print(f"    CVEs found: {', '.join(p['entities']['cves'])}")
+            if p['entities']['attack_types']:
+                print(f"    Attack types: {', '.join(p['entities']['attack_types'][:3])}")
+            print()
         
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(processed, f, indent=2, ensure_ascii=False)
         
-        print(f"\n✅ Saved to: {output_path}")
+        print(f"{'='*70}")
+        print(f"✅ Saved to: {output_path}")
+        
+        # Statistics
+        total_words = sum(p['word_count'] for p in processed)
+        total_cves = sum(len(p['entities']['cves']) for p in processed)
+        
+        print(f"\n📊 Statistics:")
+        print(f"  Total incidents: {len(processed)}")
+        print(f"  Total words: {total_words:,}")
+        print(f"  CVEs detected: {total_cves}")
+        print(f"  Average words per incident: {total_words // len(processed)}")
         print("="*70 + "\n")
+        
+        print("💡 Next step: python src/gpt_analyzer.py")
 
 if __name__ == "__main__":
     preprocessor = TextPreprocessor()
