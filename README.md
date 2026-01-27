@@ -63,7 +63,6 @@ cyber-osint-gpt/
 │
 ├── data/          # Raw and processed cyber incident data
 ├── src/           # Source code modules
-├── notebooks/     # Jupyter notebooks for analysis
 ├── requirements.txt
 ├── README.md
 └── .env
@@ -94,6 +93,7 @@ Multi-model threat correlation
 
 Automated incident classification and tagging
 ---
+
 
 
 
