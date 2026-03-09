@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Cyber Threat Intelligence{% endblock %}
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-tachometer-alt"></i> Threat Intelligence Dashboard</h1>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="stat-card critical">
+            <h3>{{ stats.total_incidents }}</h3>
+            <p><i class="fas fa-exclamation-triangle"></i> Total Incidents</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card high">
+            <h3>{{ stats.critical_count }}</h3>
+            <p><i class="fas fa-fire"></i> Critical Threats</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card medium">
+            <h3>{{ stats.unique_attack_types }}</h3>
+            <p><i class="fas fa-bug"></i> Attack Types</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card low">
+            <h3>{{ stats.unique_cves }}</h3>
+            <p><i class="fas fa-shield-virus"></i> CVEs Found</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white"><i class="fas fa-crosshairs"></i> Most Common Attack</div>
+            <div class="card-body">
+                <h4>{{ stats.most_common_attack[0] }}</h4>
+                <p class="text-muted">{{ stats.most_common_attack[1] }} incidents</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white"><i class="fas fa-bullseye"></i> Most Targeted Sector</div>
+            <div class="card-body">
+                <h4>{{ stats.most_targeted_sector[0] }}</h4>
+                <p class="text-muted">{{ stats.most_targeted_sector[1] }} incidents</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h3><i class="fas fa-clock"></i> Recent Incidents</h3>
+    {% for incident in recent %}
+    <div class="incident-card">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h5><a href="/incident/{{ loop.index0 }}" class="text-decoration-none">{{ incident.title }}</a></h5>
+                <p class="mb-2"><strong>Attack Type:</strong> {{ incident.threat_intelligence.attack_type }}</p>
+                <p class="mb-0"><strong>Target:</strong> {{ incident.threat_intelligence.target }}</p>
+            </div>
+            <span class="severity-badge {% if incident.threat_intelligence.severity == 'critical' %}bg-danger{% elif incident.threat_intelligence.severity == 'high' %}bg-warning{% else %}bg-info{% endif %} text-white">
+                {{ incident.threat_intelligence.severity|upper }}
+            </span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="text-center mt-4">
+    <a href="/search" class="btn btn-primary btn-lg"><i class="fas fa-search"></i> Search All Incidents</a>
+    <a href="/dashboard" class="btn btn-success btn-lg"><i class="fas fa-chart-bar"></i> View Analytics</a>
+</div>
+{% endblock %}

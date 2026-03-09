@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Analytics Dashboard{% endblock %}
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-chart-line"></i> Interactive Analytics Dashboard</h1>
+
+<div class="alert alert-info">
+    <i class="fas fa-info-circle"></i> <strong>Tip:</strong> Charts are interactive! You can zoom, pan, and hover for details.
+</div>
+
+<div id="charts-container">
+    <div id="attack-types-chart" style="height: 500px;"></div>
+    <div id="severity-chart" style="height: 500px; margin-top: 30px;"></div>
+    <div id="targets-chart" style="height: 500px; margin-top: 30px;"></div>
+</div>
+
+<div class="text-center mt-4">
+    <a href="/" class="btn btn-primary"><i class="fas fa-home"></i> Back to Dashboard</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+fetch('/api/charts')
+    .then(response => response.json())
+    .then(data => {
+        // Attack Types Chart
+        const attackData = [{
+            x: Object.keys(data.attack_types),
+            y: Object.values(data.attack_types),
+            type: 'bar',
+            marker: {color: '#667eea'}
+        }];
+        
+        Plotly.newPlot('attack-types-chart', attackData, {
+            title: 'Attack Types Distribution',
+            xaxis: {title: 'Attack Type'},
+            yaxis: {title: 'Count'}
+        });
+        
+        // Severity Chart
+        const severityData = [{
+            labels: Object.keys(data.severities).map(s => s.toUpperCase()),
+            values: Object.values(data.severities),
+            type: 'pie',
+            marker: {
+                colors: ['#e74c3c', '#f39c12', '#3498db', '#2ecc71']
+            }
+        }];
+        
+        Plotly.newPlot('severity-chart', severityData, {
+            title: 'Severity Distribution'
+        });
+        
+        // Targets Chart
+        const targetData = [{
+            y: Object.keys(data.targets),
+            x: Object.values(data.targets),
+            type: 'bar',
+            orientation: 'h',
+            marker: {color: '#2ecc71'}
+        }];
+        
+        Plotly.newPlot('targets-chart', targetData, {
+            title: 'Most Targeted Sectors',
+            xaxis: {title: 'Count'},
+            yaxis: {title: 'Sector'}
+        });
+    });
+</script>
+{% endblock %}

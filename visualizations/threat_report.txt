@@ -2,143 +2,143 @@
 CYBER THREAT INTELLIGENCE REPORT
 ======================================================================
 
-Generated: 2026-01-27 13:12:36
+Generated: 2026-02-14 11:27:52
 Total Incidents Analyzed: 10
 
 ATTACK TYPES:
 ----------------------------------------
-  • Ransomware Attack: 3
-  • Zero-Day Exploit: 3
-  • DDoS Attack: 2
-  • Malware Distribution: 1
-  • Phishing Campaign: 1
+  • Zero-Day Exploit: 4
+  • Phishing Campaign: 2
+  • Unknown Attack: 2
+  • DDoS Attack: 1
+  • Ransomware Attack: 1
 
 SEVERITY DISTRIBUTION:
 ----------------------------------------
-  • CRITICAL: 4
-  • HIGH: 2
-  • LOW: 4
+  • CRITICAL: 6
+  • HIGH: 1
+  • LOW: 3
 
 DETAILED INCIDENT ANALYSIS:
 ======================================================================
 
-[1] New ClickFix attacks abuse Windows App-V scripts to push malware
+[1] Microsoft: New Windows LNK spoofing issues aren't vulnerabilities
     Source: BleepingComputer
-    URL: https://www.bleepingcomputer.com/news/security/new-clickfix-attacks-abuse-windows-app-v-scripts-to-push-malware/
-    Attack Type: Ransomware Attack
-    Severity: LOW
-    Target: Multiple Sectors
-    Vulnerability: Rce Vulnerability
-    Impact: Incident resulted in data encryption and system lockout, compromised credentials.
-    Mitigation: Isolate affected systems, restore from backups, deploy anti-ransomware tools, and implement network segmentation.
-
-----------------------------------------------------------------------
-
-[2] Microsoft patches actively exploited Office zero-day vulnerability
-    Source: BleepingComputer
-    URL: https://www.bleepingcomputer.com/news/microsoft/microsoft-patches-actively-exploited-office-zero-day-vulnerability/
+    URL: https://www.bleepingcomputer.com/news/microsoft/microsoft-new-windows-lnk-spoofing-issues-arent-vulnerabilities/
     Attack Type: Zero-Day Exploit
     Severity: CRITICAL
-    Target: Multiple Sectors
-    Vulnerability: CVE-2026-21509
-    Impact: Zero-Day Exploit detected with potential system and data compromise.
-    Mitigation: Patch CVE-2026-21509 immediately. Apply vendor patches immediately, implement compensating controls, monitor for suspicious activity, and isolate vulnerable systems.
+    Target: Technology
+    Vulnerability: CVE-2025-9491
+    Impact: Incident involved data encryption
+    Mitigation: Apply patches immediately, implement compensating controls
 
 ----------------------------------------------------------------------
 
-[3] Nearly 800,000 Telnet servers exposed to remote attacks
+[2] Fake AI Chrome extensions with 300K users steal credentials, emails
     Source: BleepingComputer
-    URL: https://www.bleepingcomputer.com/news/security/nearly-800-000-telnet-servers-exposed-to-remote-attacks/
-    Attack Type: Malware Distribution
-    Severity: CRITICAL
-    Target: Multiple Sectors
-    Vulnerability: CVE-2026-24061
-    Impact: Incident resulted in data theft and potential exposure, compromised credentials.
-    Mitigation: Patch CVE-2026-24061 immediately. Update antivirus signatures, block malicious domains, scan all systems, and review security logs for compromise indicators.
-
-----------------------------------------------------------------------
-
-[4] Cloudflare misconfiguration behind recent BGP route leak
-    Source: BleepingComputer
-    URL: https://www.bleepingcomputer.com/news/security/cloudflare-misconfiguration-behind-recent-bgp-route-leak/
-    Attack Type: DDoS Attack
-    Severity: HIGH
-    Target: Multiple Sectors
-    Vulnerability: Rce Vulnerability
-    Impact: Incident resulted in service disruption and downtime.
-    Mitigation: Deploy DDoS mitigation services, implement rate limiting, use CDN protection, and have incident response plan ready.
-
-----------------------------------------------------------------------
-
-[5] New malware service guarantees phishing extensions on Chrome web store
-    Source: BleepingComputer
-    URL: https://www.bleepingcomputer.com/news/security/new-malware-service-guarantees-phishing-extensions-on-chrome-web-store/
+    URL: https://www.bleepingcomputer.com/news/security/fake-ai-chrome-extensions-with-300k-users-steal-credentials-emails/
     Attack Type: Phishing Campaign
     Severity: LOW
-    Target: Retail & E-commerce
-    Vulnerability: Rce Vulnerability
-    Impact: Incident resulted in compromised credentials.
-    Mitigation: Enhance email filtering, conduct security awareness training, implement MFA, and monitor for credential compromise.
-
-----------------------------------------------------------------------
-
-[6] New ClickFix attacks abuse Windows App-V scripts to push malware
-    Source: BleepingComputer
-    URL: https://www.bleepingcomputer.com/news/security/new-clickfix-attacks-abuse-windows-app-v-scripts-to-push-malware/
-    Attack Type: Ransomware Attack
-    Severity: LOW
     Target: Multiple Sectors
-    Vulnerability: Rce Vulnerability
-    Impact: Incident resulted in data encryption and system lockout, compromised credentials.
-    Mitigation: Isolate affected systems, restore from backups, deploy anti-ransomware tools, and implement network segmentation.
+    Vulnerability: N/A
+    Impact: Phishing Campaign detected
+    Mitigation: Enhance email filtering, conduct security training, implement MFA
 
 ----------------------------------------------------------------------
 
-[7] Microsoft patches actively exploited Office zero-day vulnerability
+[3] Apple fixes zero-day flaw used in 'extremely sophisticated' attacks
     Source: BleepingComputer
-    URL: https://www.bleepingcomputer.com/news/microsoft/microsoft-patches-actively-exploited-office-zero-day-vulnerability/
+    URL: https://www.bleepingcomputer.com/news/security/apple-fixes-zero-day-flaw-used-in-extremely-sophisticated-attacks/
     Attack Type: Zero-Day Exploit
     Severity: CRITICAL
-    Target: Multiple Sectors
-    Vulnerability: CVE-2026-21509
-    Impact: Zero-Day Exploit detected with potential system and data compromise.
-    Mitigation: Patch CVE-2026-21509 immediately. Apply vendor patches immediately, implement compensating controls, monitor for suspicious activity, and isolate vulnerable systems.
+    Target: Technology
+    Vulnerability: CVE-2026-20700
+    Impact: Zero-Day Exploit detected
+    Mitigation: Apply patches immediately, implement compensating controls
 
 ----------------------------------------------------------------------
 
-[8] Cloudflare misconfiguration behind recent BGP route leak
+[4] Microsoft February 2026 Patch Tuesday fixes 6 zero-days, 58 flaws
     Source: BleepingComputer
-    URL: https://www.bleepingcomputer.com/news/security/cloudflare-misconfiguration-behind-recent-bgp-route-leak/
+    URL: https://www.bleepingcomputer.com/news/microsoft/microsoft-february-2026-patch-tuesday-fixes-6-zero-days-58-flaws/
     Attack Type: DDoS Attack
-    Severity: HIGH
-    Target: Multiple Sectors
-    Vulnerability: Rce Vulnerability
-    Impact: Incident resulted in service disruption and downtime.
-    Mitigation: Deploy DDoS mitigation services, implement rate limiting, use CDN protection, and have incident response plan ready.
-
-----------------------------------------------------------------------
-
-[9] New ClickFix attacks abuse Windows App-V scripts to push malware
-    Source: BleepingComputer
-    URL: https://www.bleepingcomputer.com/news/security/new-clickfix-attacks-abuse-windows-app-v-scripts-to-push-malware/
-    Attack Type: Ransomware Attack
-    Severity: LOW
-    Target: Multiple Sectors
-    Vulnerability: Rce Vulnerability
-    Impact: Incident resulted in data encryption and system lockout, compromised credentials.
-    Mitigation: Isolate affected systems, restore from backups, deploy anti-ransomware tools, and implement network segmentation.
-
-----------------------------------------------------------------------
-
-[10] Microsoft patches actively exploited Office zero-day vulnerability
-    Source: BleepingComputer
-    URL: https://www.bleepingcomputer.com/news/microsoft/microsoft-patches-actively-exploited-office-zero-day-vulnerability/
-    Attack Type: Zero-Day Exploit
     Severity: CRITICAL
     Target: Multiple Sectors
-    Vulnerability: CVE-2026-21509
-    Impact: Zero-Day Exploit detected with potential system and data compromise.
-    Mitigation: Patch CVE-2026-21509 immediately. Apply vendor patches immediately, implement compensating controls, monitor for suspicious activity, and isolate vulnerable systems.
+    Vulnerability: CVE-2026-21510
+    Impact: DDoS Attack detected
+    Mitigation: Deploy DDoS mitigation, implement rate limiting, use CDN
+
+----------------------------------------------------------------------
+
+[5] Turning IBM QRadar Alerts into Action with Criminal IP
+    Source: BleepingComputer
+    URL: https://www.bleepingcomputer.com/news/security/turning-ibm-qradar-alerts-into-action-with-criminal-ip/
+    Attack Type: Unknown Attack
+    Severity: LOW
+    Target: Multiple Sectors
+    Vulnerability: N/A
+    Impact: Unknown Attack detected
+    Mitigation: Apply security patches and monitor systems
+
+----------------------------------------------------------------------
+
+[6] CISA flags critical Microsoft SCCM flaw as exploited in attacks
+    Source: BleepingComputer
+    URL: https://www.bleepingcomputer.com/news/security/cisa-flags-microsoft-configmgr-rce-flaw-as-exploited-in-attacks/
+    Attack Type: Ransomware Attack
+    Severity: CRITICAL
+    Target: Government
+    Vulnerability: CVE-2024-43468
+    Impact: Ransomware Attack detected
+    Mitigation: Isolate systems, restore from backups, deploy anti-ransomware tools
+
+----------------------------------------------------------------------
+
+[7] Microsoft fixes bug that blocked Google Chrome from launching
+    Source: BleepingComputer
+    URL: https://www.bleepingcomputer.com/news/microsoft/microsoft-fixes-family-safety-bug-that-blocks-google-chrome-from-launching/
+    Attack Type: Unknown Attack
+    Severity: HIGH
+    Target: Technology
+    Vulnerability: N/A
+    Impact: Incident involved data encryption
+    Mitigation: Apply security patches and monitor systems
+
+----------------------------------------------------------------------
+
+[8] Microsoft: New Windows LNK spoofing issues aren't vulnerabilities
+    Source: BleepingComputer
+    URL: https://www.bleepingcomputer.com/news/microsoft/microsoft-new-windows-lnk-spoofing-issues-arent-vulnerabilities/
+    Attack Type: Zero-Day Exploit
+    Severity: CRITICAL
+    Target: Technology
+    Vulnerability: CVE-2025-9491
+    Impact: Incident involved data encryption
+    Mitigation: Apply patches immediately, implement compensating controls
+
+----------------------------------------------------------------------
+
+[9] Fake AI Chrome extensions with 300K users steal credentials, emails
+    Source: BleepingComputer
+    URL: https://www.bleepingcomputer.com/news/security/fake-ai-chrome-extensions-with-300k-users-steal-credentials-emails/
+    Attack Type: Phishing Campaign
+    Severity: LOW
+    Target: Multiple Sectors
+    Vulnerability: N/A
+    Impact: Phishing Campaign detected
+    Mitigation: Enhance email filtering, conduct security training, implement MFA
+
+----------------------------------------------------------------------
+
+[10] Apple fixes zero-day flaw used in 'extremely sophisticated' attacks
+    Source: BleepingComputer
+    URL: https://www.bleepingcomputer.com/news/security/apple-fixes-zero-day-flaw-used-in-extremely-sophisticated-attacks/
+    Attack Type: Zero-Day Exploit
+    Severity: CRITICAL
+    Target: Technology
+    Vulnerability: CVE-2026-20700
+    Impact: Zero-Day Exploit detected
+    Mitigation: Apply patches immediately, implement compensating controls
 
 ----------------------------------------------------------------------
 

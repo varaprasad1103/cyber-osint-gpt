@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}{{ incident.title }} - Incident Details{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <a href="/" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+</div>
+
+<div class="card shadow-lg">
+    <div class="card-header bg-primary text-white">
+        <h2><i class="fas fa-file-alt"></i> Incident Details</h2>
+    </div>
+    <div class="card-body">
+        <h3>{{ incident.title }}</h3>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header bg-danger text-white">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Threat Intelligence</strong>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Attack Type:</strong> <span class="badge bg-primary">{{ incident.threat_intelligence.attack_type }}</span></p>
+                        <p><strong>Severity:</strong> 
+                            <span class="badge bg-{{ 'danger' if incident.threat_intelligence.severity == 'critical' else 'warning' if incident.threat_intelligence.severity == 'high' else 'info' }}">
+                                {{ incident.threat_intelligence.severity|upper }}
+                            </span>
+                        </p>
+                        <p><strong>Vulnerability:</strong> <code>{{ incident.threat_intelligence.vulnerability }}</code></p>
+                        <p><strong>Threat Actor:</strong> {{ incident.threat_intelligence.threat_actor }}</p>
+                        <p><strong>Target:</strong> {{ incident.threat_intelligence.target }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header bg-info text-white">
+                        <strong><i class="fas fa-info-circle"></i> Metadata</strong>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Source:</strong> {{ incident.source }}</p>
+                        <p><strong>Date:</strong> {{ incident.date }}</p>
+                        <p><strong>URL:</strong> <a href="{{ incident.url }}" target="_blank">View Original <i class="fas fa-external-link-alt"></i></a></p>
+                        <p><strong>Analysis Method:</strong> {{ incident.analysis_method|upper }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header bg-warning">
+                <strong><i class="fas fa-shield-alt"></i> Impact & Mitigation</strong>
+            </div>
+            <div class="card-body">
+                <h5>Impact:</h5>
+                <p>{{ incident.threat_intelligence.impact }}</p>
+                
+                <h5 class="mt-3">Recommended Mitigation:</h5>
+                <p class="alert alert-success">{{ incident.threat_intelligence.mitigation }}</p>
+            </div>
+        </div>
+        
+        {% if incident.threat_intelligence.iocs %}
+        <div class="card mt-3">
+            <div class="card-header bg-secondary text-white">
+                <strong><i class="fas fa-fingerprint"></i> Indicators of Compromise (IOCs)</strong>
+            </div>
+            <div class="card-body">
+                <ul>
+                    {% for ioc in incident.threat_intelligence.iocs %}
+                    <li><code>{{ ioc }}</code></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card mt-3">
+            <div class="card-header bg-dark text-white">
+                <strong><i class="fas fa-file-alt"></i> Full Report Text</strong>
+            </div>
+            <div class="card-body">
+                <p style="white-space: pre-wrap;">{{ incident.cleaned_text[:2000] }}{% if incident.cleaned_text|length > 2000 %}...{% endif %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 text-center">
+    <a href="/search" class="btn btn-primary"><i class="fas fa-search"></i> Search More Incidents</a>
+    <a href="/" class="btn btn-success"><i class="fas fa-home"></i> Back to Dashboard</a>
+</div>
+{% endblock %}

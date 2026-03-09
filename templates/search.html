@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Search - Cyber Threat Intelligence{% endblock %}
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-search"></i> Search Incidents</h1>
+
+<form action="/search" method="get" class="mb-4">
+    <div class="input-group input-group-lg">
+        <input type="text" name="q" class="form-control" placeholder="Search by keyword, CVE, attack type..." value="{{ query }}">
+        <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Search</button>
+    </div>
+</form>
+
+{% if query %}
+<h3>Search Results for "{{ query }}" ({{ results|length }} found)</h3>
+{% for incident in results %}
+<div class="incident-card">
+    <div class="d-flex justify-content-between">
+        <div>
+            <h5><a href="/incident/{{ loop.index0 }}">{{ incident.title }}</a></h5>
+            <p><strong>Type:</strong> {{ incident.threat_intelligence.attack_type }} | 
+               <strong>CVE:</strong> {{ incident.threat_intelligence.vulnerability }}</p>
+        </div>
+        <span class="severity-badge bg-{{ 'danger' if incident.threat_intelligence.severity == 'critical' else 'warning' }}">
+            {{ incident.threat_intelligence.severity|upper }}
+        </span>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}
