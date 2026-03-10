@@ -13,7 +13,7 @@
 
 - [Overview](#overview)
 - [Features](#features)
-- [NEW: Enhanced Features](#new-enhanced-features)
+- [Enhanced Features](#new-enhanced-features)
 - [Architecture](#architecture)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
@@ -55,8 +55,8 @@ A **complete end-to-end system** that:
 ### Core Capabilities
 
 - **🌐 Real-Time Data Collection**
-  - Live web scraping from BleepingComputer, CISA
-  - Dynamic content extraction
+  - Live web scraping from BleepingComputer
+  - Dynamic content extraction with deduplication
   - Automated incident discovery
   - No pre-configured datasets
 
@@ -65,20 +65,19 @@ A **complete end-to-end system** that:
   - OpenAI API support (optional)
   - Pattern matching fallback
   - Semantic understanding of threats
-  - Multi-model architecture
+  - Multi-model architecture with cross-validation
 
 - **🎯 Threat Intelligence Extraction**
   - Attack type classification (12+ types)
   - Threat actor identification
-  - Target sector analysis
-  - CVE/vulnerability extraction
+  - Target sector analysis (11 sectors)
+  - CVE/vulnerability extraction via regex
   - Severity assessment (Critical/High/Medium/Low)
   - Impact analysis
   - Mitigation recommendations
   - IOC detection (IPs, domains, hashes)
 
 - **📊 Advanced Visualizations**
-  - Static charts (PNG - for reports)
   - Interactive dashboards (Plotly - zoom, pan, hover)
   - Timeline analysis
   - Trend identification
@@ -86,7 +85,7 @@ A **complete end-to-end system** that:
 
 ---
 
-## 🆕 NEW: Enhanced Features
+## 🆕 Enhanced Features
 
 ### 1. Professional Web Interface
 
@@ -146,7 +145,7 @@ GET  /api/charts              - Chart data
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                  WEB INTERFACE LAYER (NEW!)                  │
+│                  WEB INTERFACE LAYER                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐  │
 │  │ Flask Server │  │  REST API    │  │  Web Dashboard  │  │
 │  │ (app.py)     │  │  Endpoints   │  │   (Bootstrap)   │  │
@@ -156,8 +155,8 @@ GET  /api/charts              - Chart data
 ┌─────────────────────────────────────────────────────────────┐
 │                    DATA COLLECTION LAYER                     │
 │  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐  │
-│  │ Web Scraping │  │   Manual     │  │  Future: RSS/   │  │
-│  │ (Dynamic)    │  │   Input      │  │  Twitter/Reddit │  │
+│  │ Web Scraping │  │ Deduplication│  │  Future: RSS/   │  │
+│  │ (Dynamic)    │  │   Filter     │  │  Twitter/Reddit │  │
 │  └──────────────┘  └──────────────┘  └─────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
                            ↓
@@ -185,7 +184,7 @@ GET  /api/charts              - Chart data
 └─────────────────────────────────────────────────────────────┘
                            ↓
 ┌─────────────────────────────────────────────────────────────┐
-│         VISUALIZATION & REPORTING LAYER (NEW!)               │
+│              VISUALIZATION & REPORTING LAYER                 │
 │  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐  │
 │  │   Plotly     │  │  Matplotlib  │  │   Text Reports  │  │
 │  │ Interactive  │  │    Static    │  │    (Future:     │  │
@@ -227,45 +226,25 @@ source venv/bin/activate
 ### Step 3: Install Dependencies
 
 ```bash
-# Core dependencies
-pip install requests beautifulsoup4 nltk pandas matplotlib seaborn
-
-# Web interface and interactive dashboards
-pip install flask plotly
-
-# AI models (choose one or more)
-pip install openai              # For OpenAI GPT (optional, requires API key)
-# OR install Ollama from: https://ollama.ai (FREE, local AI)
-
-# Optional: For future features
-pip install reportlab           # PDF generation
-```
-
-**Or install everything at once:**
-```bash
 pip install -r requirements.txt
 ```
 
-### Step 4: Download NLTK Data
-
+Or manually:
 ```bash
-python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+pip install requests beautifulsoup4 flask plotly python-dotenv openai
 ```
 
-### Step 5: Setup Ollama (Optional - FREE AI)
+### Step 4: Setup Ollama (Optional - FREE AI)
 
 ```bash
 # Download from: https://ollama.ai
-# After installation:
 ollama serve              # Start Ollama server
-ollama pull llama3.2      # Download model (in separate terminal)
+ollama pull llama3.2      # Download model (separate terminal)
 ```
 
 ---
 
 ## ⚡ Quick Start
-
-### Option 1: Web Interface (Recommended)
 
 ```bash
 # 1. Collect data
@@ -274,27 +253,14 @@ python src/scraper.py
 # 2. Preprocess
 python src/preprocessor.py
 
-# 3. Analyze (choose Ollama for FREE AI)
-python src/gpt_analyzer.py
+# 3. Analyze
+python src/gpt_analyzer.py    # Choose mode: 1=Pattern, 2=Ollama, 3=OpenAI
 
 # 4. Start web interface
 python app.py
 
-# 5. Open browser: http://127.0.0.1:5000
-```
-
-### Option 2: Command Line + Dashboards
-
-```bash
-# Steps 1-3 same as above
-
-# 4. Generate static charts
-python src/visualizer.py
-
-# 5. Generate interactive dashboards
-python src/dashboard.py
-
-# 6. Open: dashboard/comprehensive_dashboard.html
+# 5. Open browser
+# http://127.0.0.1:5000
 ```
 
 ---
@@ -307,17 +273,10 @@ python src/dashboard.py
 python src/scraper.py
 ```
 
-**What it does**:
-- Scrapes BleepingComputer.com (live website)
-- Collects 10-20 recent cyber incidents
-- Extracts full article text
+- Scrapes BleepingComputer.com live
+- Deduplicates articles automatically
+- Detects and logs CVEs found in articles
 - Saves to `data/raw/cyber_incidents.json`
-
-**Features**:
-- Dynamic collection (different data each run)
-- Rate limiting (respectful scraping)
-- Error handling
-- Automatic retries
 
 ### 2. Text Preprocessing
 
@@ -325,10 +284,9 @@ python src/scraper.py
 python src/preprocessor.py
 ```
 
-**What it does**:
 - Cleans text (removes URLs, special characters)
-- Extracts sentences
-- Detects CVE numbers automatically
+- Extracts sentences and word counts
+- Detects CVE numbers via regex (`CVE-YYYY-NNNNN`)
 - Identifies attack keywords
 - Saves to `data/processed/processed_incidents.json`
 
@@ -339,270 +297,174 @@ python src/gpt_analyzer.py
 ```
 
 **Choose your mode**:
-1. **Pattern Matching** - Fast, no setup (good baseline)
-2. **Ollama** - FREE local AI (best free option)
-3. **OpenAI GPT** - Highest quality (requires API key)
+1. **Pattern Matching** — Fast, no setup, deterministic results
+2. **Ollama** — FREE local AI using LLaMA 3.2
+3. **OpenAI GPT** — Highest quality (requires API key)
 
 **What it extracts**:
 ```json
 {
-  "attack_type": "Zero-Day Exploit",
+  "attack_type": "APT Campaign",
   "threat_actor": "APT28",
-  "target": "Government Agencies",
+  "target": "Government",
   "vulnerability": "CVE-2026-21509",
   "severity": "critical",
-  "impact": "Remote code execution possible",
-  "mitigation": "Apply Microsoft patch immediately",
-  "iocs": ["IP: 192.168.1.100", "Domain: malicious.com"]
+  "impact": "Long-term espionage operations detected",
+  "mitigation": "Threat hunt across environment, isolate compromised systems",
+  "iocs": ["No specific IOCs extracted"]
 }
 ```
 
+**Note on CVE**: CVE shows `N/A` when an article does not mention a specific software vulnerability ID. This is correct behavior — phishing and AI-abuse articles have no CVE because they exploit human behavior, not software flaws.
+
 **Output**: `data/processed/threat_intelligence.json`
-
-### 4. Visualization
-
-#### Static Charts (for presentations/reports)
-
-```bash
-python src/visualizer.py
-```
-
-**Generates**:
-- `visualizations/attack_types.png`
-- `visualizations/severity_distribution.png`
-- `visualizations/targeted_sectors.png`
-- `visualizations/dashboard.png`
-- `visualizations/threat_report.txt`
-
-#### Interactive Dashboards (for analysis)
-
-```bash
-python src/dashboard.py
-```
-
-**Generates**:
-- `dashboard/comprehensive_dashboard.html` - All-in-one dashboard
-- `dashboard/attack_types_interactive.html`
-- `dashboard/severity_interactive.html`
-- `dashboard/timeline_interactive.html`
-- `dashboard/cve_analysis_interactive.html`
-
-**Features**:
-- Zoom in/out
-- Pan across data
-- Hover for details
-- Click legends to filter
-- Export to PNG
 
 ---
 
 ## 🌐 Web Interface
 
-### Starting the Server
-
 ```bash
 python app.py
+# Access: http://127.0.0.1:5000
 ```
 
-**Access**: http://127.0.0.1:5000
+### Pages
 
-### Features
+- **/** — Main dashboard with statistics, recent incidents, quick charts
+- **/search** — Full-text search across all incidents
+- **/incident/<id>** — Full threat intelligence detail page
+- **/dashboard** — Interactive Plotly analytics
 
-#### Main Dashboard
-- **Statistics Cards**: Total incidents, critical threats, attack types, CVEs
-- **Recent Incidents**: Latest 5 incidents with severity badges
-- **Quick Actions**: Search and analytics buttons
-
-#### Search Page
-- Full-text search across all incidents
-- Search by keywords, CVE numbers, attack types
-- Real-time results with highlighting
-- Severity filtering
-
-#### Incident Details
-- Complete threat intelligence breakdown
-- Attack metadata
-- Impact assessment
-- Mitigation recommendations
-- IOCs (Indicators of Compromise)
-- Original article link
-
-#### Analytics Dashboard
-- Interactive Plotly charts embedded
-- Real-time chart updates
-- Multiple visualization types
-- Export capabilities
-
-### API Usage
+### API Endpoints
 
 ```bash
-# Get statistics
 curl http://127.0.0.1:5000/api/statistics
-
-# Search incidents
 curl http://127.0.0.1:5000/api/search?q=ransomware
-
-# Get critical incidents
 curl http://127.0.0.1:5000/api/severity/critical
-
-# Get all incidents
 curl http://127.0.0.1:5000/api/incidents
 ```
-
----
-
-## 📊 Interactive Dashboards
-
-### Accessing Dashboards
-
-**Method 1: Via Web Interface**
-- Go to http://127.0.0.1:5000/dashboard
-
-**Method 2: Direct File**
-- Open `dashboard/comprehensive_dashboard.html` in browser
-
-### Dashboard Features
-
-**Attack Types Chart**
-- Bar chart with color gradients
-- Hover: See exact count
-- Click legend: Show/hide categories
-- Zoom: Click and drag
-
-**Severity Distribution**
-- Donut pie chart
-- Color-coded by severity
-- Percentage labels
-- Interactive legend
-
-**Timeline Trend**
-- Line chart with area fill
-- Shows incidents over time
-- Zoom timeline
-- Hover for date details
-
-**Target Sectors**
-- Horizontal bar chart
-- Most targeted sectors
-- Color-coded
-- Click to filter
-
-**CVE Analysis**
-- Top 10 CVEs
-- Occurrence frequency
-- Hover for details
 
 ---
 
 ## 📁 Project Structure
 
 ```
-cyber-threat-intelligence/
+cyber-osint-gpt/
 │
-├── app.py                            # Flask web application ⭐NEW
-├── setup_enhancements.py             # Setup script ⭐NEW
-├── config.py                         # Configuration
-├── requirements.txt                  # Dependencies
-├── .env                              # API keys (gitignored)
-├── .gitignore                       # Git ignore rules
+├── app.py                        # Flask web application
+├── config.py                     # Configuration settings
+├── requirements.txt              # Dependencies
+├── .env                          # API keys (gitignored)
 │
 ├── src/
-│   ├── __init__.py
-│   ├── scraper.py                    # Web scraping module
-│   ├── preprocessor.py               # Text preprocessing
-│   ├── gpt_analyzer.py               # AI analysis (multi-model)
-│   ├── visualizer.py                 # Static charts
-│   └── dashboard.py                  # Interactive dashboards ⭐NEW
+│   ├── scraper.py                # Web scraping + deduplication
+│   ├── preprocessor.py           # Text cleaning + CVE extraction
+│   ├── gpt_analyzer.py           # AI analysis (multi-model)
+│   ├── visualizer.py             # Text reports
+│   └── dashboard.py              # Interactive Plotly dashboards
 │
-├── templates/                        # Flask HTML templates ⭐NEW
-│   ├── base.html                     # Base template
-│   ├── index.html                    # Main dashboard
-│   ├── search.html                   # Search page
-│   ├── dashboard.html                # Analytics page
-│   └── incident_detail.html          # Incident details
-│
-├── static/                           # Static assets ⭐NEW
-│   ├── css/
-│   └── js/
+├── templates/
+│   ├── base.html
+│   ├── index.html                # Main dashboard
+│   ├── search.html
+│   ├── dashboard.html
+│   └── incident_detail.html
 │
 ├── data/
-│   ├── raw/                          # Raw scraped data
+│   ├── raw/
 │   │   └── cyber_incidents.json
-│   └── processed/                    # Analyzed data
+│   └── processed/
 │       ├── processed_incidents.json
 │       └── threat_intelligence.json
 │
-├── dashboard/                        # Interactive dashboards ⭐NEW
-│   ├── comprehensive_dashboard.html
-│   ├── attack_types_interactive.html
-│   ├── severity_interactive.html
-│   ├── timeline_interactive.html
-│   └── cve_analysis_interactive.html
-│
-├── visualizations/                   # Static charts
-│   ├── attack_types.png
-│   ├── severity_distribution.png
-│   ├── targeted_sectors.png
-│   ├── incident_timeline.png
-│   ├── dashboard.png
-│   └── threat_report.txt
-│
-└── docs/
-    └── IOMP_Team_5.pptx.pdf         # Project presentation
+└── dashboard/
+    ├── comprehensive_dashboard.html
+    ├── attack_types_interactive.html
+    ├── severity_interactive.html
+    ├── timeline_interactive.html
+    └── cve_analysis_interactive.html
 ```
 
 ---
 
 ## 📊 Results
 
-### Sample Output Statistics
+### Actual Pipeline Output (March 10, 2026)
 
 ```
 ======================================================================
-📊 THREAT INTELLIGENCE SUMMARY
+🧹 TEXT PREPROCESSOR
+======================================================================
+
+Total incidents: 10
+Total words: 6,705
+CVEs detected: 8
+Average words per incident: 670
+```
+
+```
+======================================================================
+📊 THREAT INTELLIGENCE SUMMARY (Ollama Mode)
 ======================================================================
 
 Total Incidents Analyzed: 10
-Critical Threats: 6
-Unique Attack Types: 6
-CVEs Identified: 4
 
 🎯 Attack Types:
-   • Zero-Day Exploit: 4
-   • Phishing Campaign: 2
-   • Unknown Attack: 2
-   • DDoS Attack: 1
-   • Ransomware Attack: 1
+   • Phishing Campaign: 4
+   • APT Campaign: 2
+   • Security Incident: 2
+   • Vulnerability Exploit: 2
 
 ⚠️  Severity Distribution:
-   • CRITICAL: 6
-   • HIGH: 1
-   • LOW: 3
+   • CRITICAL: 3
+   • HIGH: 4
+   • MEDIUM: 2
+   • LOW: 1
 
-Most Common Attack: Zero-Day Exploit (4 incidents)
-Most Targeted Sector: Multiple Sectors (9 incidents)
+🎯 Top Targeted Sectors:
+   • Government: 4
+   • Enterprise: 2
+   • Developers: 2
+   • Technology: 2
+
+🔍 CVEs Identified: 3
 ```
 
 ### Sample Extracted Intelligence
 
 ```json
 {
-  "id": "bc_1_1234567890",
+  "id": "bc_7_1741608000",
   "source": "BleepingComputer",
-  "title": "Microsoft patches actively exploited Office zero-day",
+  "title": "APT28 hackers deploy customized variant of Covenant open-source tool",
   "threat_intelligence": {
-    "attack_type": "Zero-Day Exploit",
-    "threat_actor": "Unknown Actor",
-    "target": "Multiple Sectors",
+    "attack_type": "APT Campaign",
+    "threat_actor": "APT28",
+    "target": "Government",
     "vulnerability": "CVE-2026-21509",
     "severity": "critical",
-    "impact": "Zero-Day Exploit detected",
-    "mitigation": "Apply patches immediately, implement compensating controls",
+    "impact": "Long-term espionage operations using custom C2 framework",
+    "mitigation": "Threat hunt across environment, isolate compromised systems",
     "iocs": ["No specific IOCs extracted"]
   },
   "analysis_method": "ollama"
 }
 ```
+
+### Articles Analyzed (March 10, 2026)
+
+| # | Title | Attack Type | Target | CVE |
+|---|-------|-------------|--------|-----|
+| 1 | Hackers abuse .arpa DNS and ipv6 to evade phishing | Phishing Campaign | Government | N/A |
+| 2 | Microsoft: Hackers abusing AI at every stage | APT Campaign | Enterprise | N/A |
+| 3 | Fake Claude Code install guides push infostealers | Phishing Campaign | Developers | N/A |
+| 4 | Microsoft 365 Backup file-level restore | Security Incident | Technology | N/A |
+| 5 | CISA: Ivanti EPM flaw actively exploited | Vulnerability Exploit | Government | CVE-2026-1603 |
+| 6 | Microsoft Windows hotpatch security updates | Security Incident | Technology | N/A |
+| 7 | APT28 deploy Covenant open-source tool | APT Campaign | Government | CVE-2026-21509 |
+| 8 | Microsoft Teams phishing with A0Backdoor | Phishing Campaign | Enterprise | N/A |
+| 9 | Google: Cloud attacks exploit flaws | Vulnerability Exploit | Developers | CVE-2025-55182 |
+| 10 | Dutch govt warns Signal/WhatsApp hijacking | Phishing Campaign | Government | N/A |
 
 ---
 
@@ -612,159 +474,77 @@ Most Targeted Sector: Multiple Sectors (9 incidents)
 |---------|-----------------|-----------------|
 | **Interface** | Command line only | Professional web interface |
 | **Search** | Manual file browsing | Full-text search + filters |
-| **Dashboards** | Static PNG only | Interactive + Static |
-| **AI Models** | Pattern matching | Ollama + GPT + Patterns |
+| **Dashboards** | Static PNG only | Interactive Plotly |
+| **AI Models** | Pattern matching only | Ollama + GPT + Patterns |
+| **Target Detection** | Often incorrect | Title-first + body cross-validation |
+| **Deduplication** | None | URL + title dedup |
 | **API** | None | RESTful API |
-| **Deployment** | Scripts | Web server |
-| **User Experience** | Technical users | Anyone with browser |
+| **Attack Labels** | "Unknown Attack" | 12 specific attack types |
+| **Sector Labels** | "Multiple Sectors" | 11 named sectors |
 
 ---
 
 ## 🔧 Configuration
 
-### API Keys (.env file)
+### .env file
 
 ```bash
 # OpenAI (optional)
 OPENAI_API_KEY=sk-your-key-here
-
-# Groq (optional - another free API)
-GROQ_API_KEY=gsk_your-key-here
-
-# MongoDB (future)
-MONGODB_URI=mongodb://localhost:27017/
 ```
 
-### config.py Settings
+### config.py
 
 ```python
-# Scraping
-REQUEST_DELAY = 2          # Seconds between requests
+REQUEST_DELAY = 2       # Seconds between requests
 MAX_RETRIES = 3
 TIMEOUT = 30
-
-# Paths
 RAW_DATA_DIR = 'data/raw'
 PROCESSED_DATA_DIR = 'data/processed'
 ```
 
 ---
 
-## 🚀 Deployment
-
-### Development
-
-```bash
-python app.py
-# Access: http://127.0.0.1:5000
-```
-
-### Production (Future)
-
-```bash
-# Using Gunicorn
-pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 app:app
-
-# Using Docker (create Dockerfile)
-docker build -t threat-intel .
-docker run -p 5000:5000 threat-intel
-```
-
----
-
-## 📈 Performance Metrics
-
-- **Data Collection**: ~2-3 seconds per incident
-- **Preprocessing**: ~0.5 seconds per incident
-- **AI Analysis (Ollama)**: ~3-5 seconds per incident
-- **AI Analysis (Pattern)**: <1 second per incident
-- **Visualization**: ~2-3 seconds total
-- **Web Interface**: <100ms response time
-
-**Total Pipeline**: ~30-60 seconds for 10 incidents (with Ollama)
-
----
-
-## 🎓 Academic Contribution
-
-### Innovation Points
-
-1. **First system** to combine automated OSINT + GPT for cyber threat intelligence
-2. **Multi-model architecture** with fallback mechanisms
-3. **Production-ready** web interface
-4. **Interactive analytics** for threat analysis
-5. **Free and open-source** (democratizing threat intelligence)
-
-### Use Cases
-
-- **Security Operations Centers (SOCs)**
-- **Incident Response Teams**
-- **Threat Intelligence Analysts**
-- **Academic Research**
-- **Small/Medium Businesses** (can't afford commercial tools)
-
----
-
 ## 🛠️ Troubleshooting
+
+### Ollama Timeout
+
+```bash
+# Reduce article text sent to Ollama (already set to 800 chars in analyzer)
+# Or switch to pattern matching mode (choice 1) for consistent fast results
+```
 
 ### Web Interface Won't Start
 
 ```bash
-# Check if port 5000 is in use
-netstat -ano | findstr :5000  # Windows
-lsof -i :5000                 # Mac/Linux
-
-# Use different port
-python app.py --port 8080
+netstat -ano | findstr :5000   # Check if port is in use (Windows)
 ```
 
-### Ollama Connection Failed
+### UnicodeDecodeError on Windows
 
-```bash
-# Start Ollama server
-ollama serve
-
-# Check if running
-curl http://localhost:11434/api/tags
-
-# Download model
-ollama pull llama3.2
+```python
+# Always open JSON files with encoding='utf-8'
+open('file.json', encoding='utf-8')
 ```
 
 ### Scraper Returns No Data
 
 ```bash
-# Check internet connection
-# Website might have changed structure
-# Use pattern matching mode as fallback
-```
-
-### Dashboard Not Showing Charts
-
-```bash
-# Ensure plotly is installed
-pip install plotly
-
-# Check data file exists
-ls data/processed/threat_intelligence.json
+# Website structure may have changed
+# System automatically falls back to sample data
 ```
 
 ---
 
 ## 🔮 Future Enhancements
 
-### Planned Features
-
-- ✅ PDF Report Generation
-- ✅ Email/SMS Alerts for Critical Threats
-- ✅ Export to Excel/CSV
-- ✅ More Data Sources (Twitter, Reddit, Dark Web)
-- ✅ Database Integration (PostgreSQL/MongoDB)
-- ✅ Trend Prediction using ML
-- ✅ User Authentication
-- ✅ Collaborative Features
-- ✅ Mobile App
+- PDF Report Generation
+- Email/SMS Alerts for Critical Threats
+- Export to Excel/CSV
+- More Data Sources (Twitter, Reddit, CISA feeds)
+- Database Integration (PostgreSQL/MongoDB)
+- Trend Prediction using ML
+- User Authentication
 
 ---
 
@@ -776,13 +556,9 @@ ls data/processed/threat_intelligence.json
 - **S. Varaprasad** (22EG105A51)
 - **T. Akshara** (22EG105A65)
 
-**Project Guide**
-- **Dr. G. Vishnu Murthy**
-- Professor & Dean CSE
+**Project Guide**: Dr. G. Vishnu Murthy — Professor & Dean CSE
 
-**Institution**
-- Department of Computer Science and Engineering
-- Project Date: January 2026
+**Institution**: Department of Computer Science and Engineering
 
 ---
 
@@ -800,47 +576,10 @@ ls data/processed/threat_intelligence.json
 
 ## 📝 License
 
-This project is developed for academic purposes at the Department of Computer Science and Engineering.
+Developed for academic purposes — Department of Computer Science and Engineering.
 
 ---
 
-## 🤝 Acknowledgments
-
-- Dr. G. Vishnu Murthy for project guidance
-- Department of Computer Science and Engineering
-- Open-source community (Flask, Plotly, Transformers)
-- BleepingComputer for cyber security news
-
----
-
-## 📧 Contact
-
-For questions, suggestions, or collaboration:
-- **Email**: [team contact]
-- **Project Guide**: Dr. G. Vishnu Murthy
-- **Institution**: Department of CSE
-
----
-
-## ⭐ Project Highlights
-
-✅ **100% Free & Open Source**  
-✅ **Production-Ready Web Interface**  
-✅ **Real AI Integration** (not just keywords)  
-✅ **Interactive Dashboards**  
-✅ **Live Data Collection** (not pre-configured)  
-✅ **Multi-Model Architecture**  
-✅ **RESTful API**  
-✅ **Professional UI/UX**  
-✅ **Scalable & Extensible**  
-✅ **Academic Innovation**  
-
----
-
-**Last Updated**: March 9, 2026  
-**Version**: 3.0 (Web Interface + Interactive Dashboards)  
+**Last Updated**: March 10, 2026
+**Version**: 4.0 (Improved AI Analysis + Cross-Validation + Deduplication)
 **Status**: ✅ Active Development
-
----
-
-**🌟 Star this project if you find it useful!**
