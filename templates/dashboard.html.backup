@@ -1,0 +1,333 @@
+# templates/dashboard.html - Enhanced with embedded visualizations
+dashboard_html = """{% extends "base.html" %}
+{% block title %}Analytics Dashboard - Cyber Threat Intelligence{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-chart-line"></i> Interactive Analytics Dashboard</h1>
+
+<div class="alert alert-info">
+    <i class="fas fa-info-circle"></i> <strong>Tip:</strong> All charts are interactive! Zoom, pan, and hover for details.
+</div>
+
+<!-- Statistics Cards Row -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h3 id="total-incidents">0</h3>
+                <p><i class="fas fa-exclamation-triangle"></i> Total Incidents</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h3 id="critical-count">0</h3>
+                <p><i class="fas fa-fire"></i> Critical Threats</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h3 id="attack-types-count">0</h3>
+                <p><i class="fas fa-bug"></i> Attack Types</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h3 id="cve-count">0</h3>
+                <p><i class="fas fa-shield-virus"></i> CVEs Found</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Container -->
+<div class="row">
+    <!-- Attack Types Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-chart-bar"></i> Attack Types Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div id="attack-types-chart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Severity Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h5><i class="fas fa-chart-pie"></i> Severity Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div id="severity-chart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Target Sectors Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-bullseye"></i> Most Targeted Sectors</h5>
+            </div>
+            <div class="card-body">
+                <div id="targets-chart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-white">
+                <h5><i class="fas fa-calendar-alt"></i> Incident Timeline</h5>
+            </div>
+            <div class="card-body">
+                <div id="timeline-chart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CVE Analysis -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h5><i class="fas fa-bug"></i> Top CVE Vulnerabilities</h5>
+            </div>
+            <div class="card-body">
+                <div id="cve-chart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="text-center mt-4 mb-4">
+    <a href="/" class="btn btn-primary btn-lg"><i class="fas fa-home"></i> Back to Dashboard</a>
+    <a href="/search" class="btn btn-success btn-lg"><i class="fas fa-search"></i> Search Incidents</a>
+    <button onclick="window.print()" class="btn btn-secondary btn-lg"><i class="fas fa-print"></i> Print Report</button>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Fetch data and create all charts
+fetch('/api/charts')
+    .then(response => response.json())
+    .then(data => {
+        createAllCharts(data);
+    })
+    .catch(error => {
+        console.error('Error loading chart data:', error);
+        alert('Error loading charts. Please refresh the page.');
+    });
+
+// Fetch statistics
+fetch('/api/statistics')
+    .then(response => response.json())
+    .then(stats => {
+        document.getElementById('total-incidents').textContent = stats.total_incidents || 0;
+        document.getElementById('critical-count').textContent = stats.critical_count || 0;
+        document.getElementById('attack-types-count').textContent = stats.unique_attack_types || 0;
+        document.getElementById('cve-count').textContent = stats.unique_cves || 0;
+    });
+
+function createAllCharts(data) {
+    // 1. Attack Types Bar Chart
+    const attackData = [{
+        x: Object.keys(data.attack_types),
+        y: Object.values(data.attack_types),
+        type: 'bar',
+        marker: {
+            color: Object.values(data.attack_types),
+            colorscale: 'Reds',
+            showscale: false
+        },
+        text: Object.values(data.attack_types),
+        textposition: 'outside',
+        hovertemplate: '<b>%{x}</b><br>Incidents: %{y}<extra></extra>'
+    }];
+    
+    Plotly.newPlot('attack-types-chart', attackData, {
+        xaxis: { 
+            title: 'Attack Type',
+            tickangle: -45
+        },
+        yaxis: { title: 'Number of Incidents' },
+        margin: { t: 20, l: 50, r: 20, b: 100 },
+        hovermode: 'closest'
+    }, {responsive: true});
+
+    // 2. Severity Pie Chart
+    const severityOrder = ['critical', 'high', 'medium', 'low'];
+    const severityColors = {
+        'critical': '#e74c3c',
+        'high': '#f39c12',
+        'medium': '#3498db',
+        'low': '#2ecc71'
+    };
+    
+    const severityLabels = severityOrder
+        .filter(s => data.severities[s])
+        .map(s => s.toUpperCase());
+    
+    const severityValues = severityOrder
+        .filter(s => data.severities[s])
+        .map(s => data.severities[s]);
+    
+    const severityColorsList = severityOrder
+        .filter(s => data.severities[s])
+        .map(s => severityColors[s]);
+
+    const severityData = [{
+        labels: severityLabels,
+        values: severityValues,
+        type: 'pie',
+        marker: { colors: severityColorsList },
+        hole: 0.4,
+        textposition: 'inside',
+        textinfo: 'label+percent',
+        hovertemplate: '<b>%{label}</b><br>Incidents: %{value}<br>Percentage: %{percent}<extra></extra>'
+    }];
+    
+    Plotly.newPlot('severity-chart', severityData, {
+        margin: { t: 20, l: 20, r: 20, b: 20 },
+        showlegend: true,
+        legend: { orientation: 'h', y: -0.1 }
+    }, {responsive: true});
+
+    // 3. Target Sectors Horizontal Bar
+    const targetData = [{
+        y: Object.keys(data.targets),
+        x: Object.values(data.targets),
+        type: 'bar',
+        orientation: 'h',
+        marker: {
+            color: Object.values(data.targets),
+            colorscale: 'Viridis',
+            showscale: false
+        },
+        text: Object.values(data.targets),
+        textposition: 'outside',
+        hovertemplate: '<b>%{y}</b><br>Incidents: %{x}<extra></extra>'
+    }];
+    
+    Plotly.newPlot('targets-chart', targetData, {
+        xaxis: { title: 'Number of Incidents' },
+        yaxis: { title: '' },
+        margin: { t: 20, l: 150, r: 50, b: 50 }
+    }, {responsive: true});
+
+    // 4. Timeline (fetch incidents for dates)
+    fetch('/api/incidents')
+        .then(response => response.json())
+        .then(incidents => {
+            const dateCounts = {};
+            incidents.forEach(inc => {
+                const date = inc.date || 'Unknown';
+                dateCounts[date] = (dateCounts[date] || 0) + 1;
+            });
+            
+            const sortedDates = Object.keys(dateCounts).sort();
+            const counts = sortedDates.map(date => dateCounts[date]);
+            
+            const timelineData = [{
+                x: sortedDates,
+                y: counts,
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { color: '#e74c3c', width: 3 },
+                marker: { size: 10, color: '#c0392b' },
+                fill: 'tozeroy',
+                fillcolor: 'rgba(231, 76, 60, 0.2)',
+                hovertemplate: '<b>%{x}</b><br>Incidents: %{y}<extra></extra>'
+            }];
+            
+            Plotly.newPlot('timeline-chart', timelineData, {
+                xaxis: { title: 'Date' },
+                yaxis: { title: 'Number of Incidents' },
+                margin: { t: 20, l: 50, r: 20, b: 80 },
+                hovermode: 'x unified'
+            }, {responsive: true});
+
+            // 5. CVE Analysis
+            const cves = {};
+            incidents.forEach(inc => {
+                const cve = inc.threat_intelligence?.vulnerability;
+                if (cve && cve.includes('CVE-')) {
+                    cves[cve] = (cves[cve] || 0) + 1;
+                }
+            });
+            
+            const sortedCVEs = Object.entries(cves)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            if (sortedCVEs.length > 0) {
+                const cveData = [{
+                    x: sortedCVEs.map(c => c[0]),
+                    y: sortedCVEs.map(c => c[1]),
+                    type: 'bar',
+                    marker: {
+                        color: '#e67e22',
+                        line: { color: '#d35400', width: 2 }
+                    },
+                    text: sortedCVEs.map(c => c[1]),
+                    textposition: 'outside',
+                    hovertemplate: '<b>%{x}</b><br>Occurrences: %{y}<extra></extra>'
+                }];
+                
+                Plotly.newPlot('cve-chart', cveData, {
+                    xaxis: { 
+                        title: 'CVE Number',
+                        tickangle: -45
+                    },
+                    yaxis: { title: 'Occurrences' },
+                    margin: { t: 20, l: 50, r: 20, b: 100 }
+                }, {responsive: true});
+            } else {
+                document.getElementById('cve-chart').innerHTML = 
+                    '<div class="alert alert-info">No CVEs found in current dataset</div>';
+            }
+        });
+}
+
+// Make charts responsive on window resize
+window.addEventListener('resize', function() {
+    const chartIds = ['attack-types-chart', 'severity-chart', 'targets-chart', 'timeline-chart', 'cve-chart'];
+    chartIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element && element.data) {
+            Plotly.Plots.resize(element);
+        }
+    });
+});
+</script>
+
+<style>
+@media print {
+    .btn, .navbar, .alert { display: none; }
+    .card { break-inside: avoid; }
+}
+</style>
+{% endblock %}
+"""
+
+# Save this content
+with open('templates/dashboard.html', 'w', encoding='utf-8') as f:
+    f.write(dashboard_html)
+
+print("✅ Enhanced dashboard.html created!")
+print("   Open http://127.0.0.1:5000/dashboard to see it!")

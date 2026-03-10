@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Dashboard - Cyber Threat Intelligence{% endblock %}
 {% block content %}
-<h1 class="mb-4"><i class="fas fa-tachometer-alt"></i> Threat Intelligence Dashboard</h1>
+<div class="mb-4">
+    <h1 class="display-4"><i class="fas fa-shield-alt"></i> Cyber Threat Intelligence Dashboard</h1>
+    <p class="lead text-muted">Real-time threat analysis and visualization</p>
+</div>
 
-<div class="row">
+<!-- Statistics Cards -->
+<div class="row mb-4">
     <div class="col-md-3">
         <div class="stat-card critical">
             <h3>{{ stats.total_incidents }}</h3>
@@ -30,47 +34,241 @@
     </div>
 </div>
 
-<div class="row mt-4">
+<!-- Quick Insights Row -->
+<div class="row mb-4">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-primary text-white"><i class="fas fa-crosshairs"></i> Most Common Attack</div>
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-crosshairs"></i> Most Common Attack</h5>
+            </div>
             <div class="card-body">
-                <h4>{{ stats.most_common_attack[0] }}</h4>
-                <p class="text-muted">{{ stats.most_common_attack[1] }} incidents</p>
+                <h3 class="text-primary">{{ stats.most_common_attack[0] }}</h3>
+                <p class="text-muted">{{ stats.most_common_attack[1] }} incidents detected</p>
             </div>
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-danger text-white"><i class="fas fa-bullseye"></i> Most Targeted Sector</div>
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-danger text-white">
+                <h5><i class="fas fa-bullseye"></i> Most Targeted Sector</h5>
+            </div>
             <div class="card-body">
-                <h4>{{ stats.most_targeted_sector[0] }}</h4>
-                <p class="text-muted">{{ stats.most_targeted_sector[1] }} incidents</p>
+                <h3 class="text-danger">{{ stats.most_targeted_sector[0] }}</h3>
+                <p class="text-muted">{{ stats.most_targeted_sector[1] }} incidents reported</p>
             </div>
         </div>
     </div>
 </div>
 
-<div class="mt-5">
-    <h3><i class="fas fa-clock"></i> Recent Incidents</h3>
-    {% for incident in recent %}
-    <div class="incident-card">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <h5><a href="/incident/{{ loop.index0 }}" class="text-decoration-none">{{ incident.title }}</a></h5>
-                <p class="mb-2"><strong>Attack Type:</strong> {{ incident.threat_intelligence.attack_type }}</p>
-                <p class="mb-0"><strong>Target:</strong> {{ incident.threat_intelligence.target }}</p>
+<!-- Quick Visualizations Preview -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h5><i class="fas fa-chart-bar"></i> Attack Types (Quick View)</h5>
             </div>
-            <span class="severity-badge {% if incident.threat_intelligence.severity == 'critical' %}bg-danger{% elif incident.threat_intelligence.severity == 'high' %}bg-warning{% else %}bg-info{% endif %} text-white">
-                {{ incident.threat_intelligence.severity|upper }}
-            </span>
+            <div class="card-body">
+                <div id="quick-attack-chart" style="height: 250px;"></div>
+                <div class="text-center mt-2">
+                    <a href="/dashboard" class="btn btn-sm btn-primary">View Full Analytics <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
         </div>
     </div>
-    {% endfor %}
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <h5><i class="fas fa-chart-pie"></i> Severity Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <div id="quick-severity-chart" style="height: 250px;"></div>
+                <div class="text-center mt-2">
+                    <a href="/dashboard" class="btn btn-sm btn-danger">Detailed View <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="text-center mt-4">
-    <a href="/search" class="btn btn-primary btn-lg"><i class="fas fa-search"></i> Search All Incidents</a>
-    <a href="/dashboard" class="btn btn-success btn-lg"><i class="fas fa-chart-bar"></i> View Analytics</a>
+<!-- Recent Incidents -->
+<div class="card shadow-lg border-0 mb-4">
+    <div class="card-header bg-dark text-white">
+        <h4><i class="fas fa-clock"></i> Recent Incidents</h4>
+    </div>
+    <div class="card-body">
+        {% if recent %}
+        {% for incident in recent %}
+        <div class="incident-card">
+            <div class="row align-items-center">
+                <div class="col-md-9">
+                    <h5>
+                        <a href="/incident/{{ loop.index0 }}" class="text-decoration-none text-dark">
+                            {{ incident.title }}
+                        </a>
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong><i class="fas fa-bug"></i> Attack:</strong> {{ incident.threat_intelligence.attack_type }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong><i class="fas fa-bullseye"></i> Target:</strong> {{ incident.threat_intelligence.target }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong><i class="fas fa-shield-virus"></i> CVE:</strong> 
+                                <code>{{ incident.threat_intelligence.vulnerability }}</code>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-end">
+                    <span class="severity-badge {% if incident.threat_intelligence.severity == 'critical' %}bg-danger{% elif incident.threat_intelligence.severity == 'high' %}bg-warning text-dark{% elif incident.threat_intelligence.severity == 'medium' %}bg-info{% else %}bg-success{% endif %} text-white">
+                        {{ incident.threat_intelligence.severity|upper }}
+                    </span>
+                    <p class="text-muted small mt-2">{{ incident.date }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No incidents found. Run the scraper to collect data.
+        </div>
+        {% endif %}
+    </div>
 </div>
+
+<!-- Action Buttons -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center shadow border-0 hover-card">
+            <div class="card-body">
+                <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                <h5>Search Incidents</h5>
+                <p class="text-muted">Find specific threats and vulnerabilities</p>
+                <a href="/search" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search"></i> Search Now
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow border-0 hover-card">
+            <div class="card-body">
+                <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                <h5>Full Analytics</h5>
+                <p class="text-muted">Interactive charts and detailed analysis</p>
+                <a href="/dashboard" class="btn btn-success btn-lg">
+                    <i class="fas fa-chart-bar"></i> View Analytics
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow border-0 hover-card">
+            <div class="card-body">
+                <i class="fas fa-download fa-3x text-info mb-3"></i>
+                <h5>Export Data</h5>
+                <p class="text-muted">Download reports and raw data</p>
+                <a href="/api/incidents" class="btn btn-info btn-lg" download>
+                    <i class="fas fa-download"></i> Export JSON
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
+
+{% block scripts %}
+<script>
+// Load quick preview charts
+fetch('/api/charts')
+    .then(response => response.json())
+    .then(data => {
+        // Quick Attack Types Chart (top 5)
+        const topAttacks = Object.entries(data.attack_types)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+        
+        const attackData = [{
+            x: topAttacks.map(a => a[0]),
+            y: topAttacks.map(a => a[1]),
+            type: 'bar',
+            marker: {
+                color: ['#e74c3c', '#f39c12', '#3498db', '#2ecc71', '#9b59b6'],
+            },
+            text: topAttacks.map(a => a[1]),
+            textposition: 'outside'
+        }];
+        
+        Plotly.newPlot('quick-attack-chart', attackData, {
+            margin: { t: 10, l: 40, r: 20, b: 60 },
+            xaxis: { tickangle: -30 },
+            yaxis: { title: 'Count' },
+            showlegend: false
+        }, {responsive: true, displayModeBar: false});
+
+        // Quick Severity Chart
+        const severityOrder = ['critical', 'high', 'medium', 'low'];
+        const severityColors = {
+            'critical': '#e74c3c',
+            'high': '#f39c12',
+            'medium': '#3498db',
+            'low': '#2ecc71'
+        };
+        
+        const severityLabels = severityOrder
+            .filter(s => data.severities[s])
+            .map(s => s.toUpperCase());
+        
+        const severityValues = severityOrder
+            .filter(s => data.severities[s])
+            .map(s => data.severities[s]);
+        
+        const severityColorsList = severityOrder
+            .filter(s => data.severities[s])
+            .map(s => severityColors[s]);
+
+        const severityData = [{
+            labels: severityLabels,
+            values: severityValues,
+            type: 'pie',
+            marker: { colors: severityColorsList },
+            hole: 0.5,
+            textinfo: 'label+percent'
+        }];
+        
+        Plotly.newPlot('quick-severity-chart', severityData, {
+            margin: { t: 10, l: 10, r: 10, b: 10 },
+            showlegend: false
+        }, {responsive: true, displayModeBar: false});
+    })
+    .catch(error => console.error('Error loading charts:', error));
+</script>
+
+<style>
+.hover-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+}
+.incident-card {
+    transition: all 0.3s ease;
+}
+.incident-card:hover {
+    background: #f8f9fa;
+    transform: translateX(5px);
+}
+</style>
+{% endblock %}
+"""
+
+# Save this content
+with open('templates/index.html', 'w', encoding='utf-8') as f:
+    f.write(index_html)
+
+print("✅ Enhanced index.html created!")
+print("   Restart Flask: python app.py")
+print("   Open: http://127.0.0.1:5000")

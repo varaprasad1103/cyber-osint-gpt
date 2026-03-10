@@ -1,4 +1,10 @@
-{% extends "base.html" %}
+# update_templates.py - Update templates with embedded visualizations
+import os
+
+def update_dashboard_template():
+    """Update dashboard.html with embedded charts"""
+    
+    dashboard_content = """{% extends "base.html" %}
 {% block title %}Analytics Dashboard - Cyber Threat Intelligence{% endblock %}
 
 {% block content %}
@@ -216,3 +222,40 @@ function createAllCharts(data) {
 }
 </script>
 {% endblock %}
+"""
+    
+    with open('templates/dashboard.html', 'w', encoding='utf-8') as f:
+        f.write(dashboard_content)
+    
+    print("✅ Updated templates/dashboard.html")
+
+def main():
+    print("\n" + "="*70)
+    print("🔄 UPDATING TEMPLATES WITH EMBEDDED VISUALIZATIONS")
+    print("="*70 + "\n")
+    
+    if not os.path.exists('templates'):
+        print("❌ templates/ folder not found!")
+        print("   Run: python setup_enhancements.py first")
+        return
+    
+    # Backup old file if exists
+    if os.path.exists('templates/dashboard.html'):
+        os.rename('templates/dashboard.html', 'templates/dashboard.html.backup')
+        print("📦 Backed up old dashboard.html")
+    
+    update_dashboard_template()
+    
+    print("\n" + "="*70)
+    print("✅ TEMPLATES UPDATED SUCCESSFULLY!")
+    print("="*70)
+    print("\nNext steps:")
+    print("1. Restart Flask server:")
+    print("   python app.py")
+    print("\n2. Visit:")
+    print("   http://127.0.0.1:5000/dashboard")
+    print("\n3. You'll see 5 interactive charts embedded!")
+    print("="*70 + "\n")
+
+if __name__ == "__main__":
+    main()
