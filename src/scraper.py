@@ -1,9 +1,10 @@
-# src/scraper.py - Improved with better error handling
+# src/scraper.py - Fixed with deduplication and better content extraction
 import requests
 from bs4 import BeautifulSoup
 import time
 import json
 import os
+import re
 from datetime import datetime
 
 class CyberIncidentScraper:
@@ -15,9 +16,11 @@ class CyberIncidentScraper:
         os.makedirs('data/raw', exist_ok=True)
     
     def scrape_bleeping_computer(self, max_articles=15):
-        """Scrape from BleepingComputer - more reliable structure"""
+        """Scrape from BleepingComputer with deduplication fix"""
         base_url = "https://www.bleepingcomputer.com"
         incidents = []
+        seen_urls = set()   # FIX: track seen URLs to prevent duplicates
+        seen_titles = set() # FIX: track seen titles as secondary dedup check
         
         print(f"\n🔍 Scraping BleepingComputer for cyber incidents...")
         print(f"Target: {max_articles} articles\n")
@@ -29,36 +32,47 @@ class CyberIncidentScraper:
             soup = BeautifulSoup(response.content, 'html.parser')
             
             # Find article links
-            articles = soup.find_all('h4', class_='bc_latest_news_text')[:max_articles]
+            articles = soup.find_all('h4', class_='bc_latest_news_text')
             
             if not articles:
-                # Try alternative selector
                 articles = soup.find_all('a', href=True)
-                articles = [a for a in articles if '/news/' in a.get('href', '')][:max_articles]
+                articles = [a for a in articles if '/news/' in a.get('href', '')]
             
-            print(f"✓ Found {len(articles)} articles\n")
-            
-            for idx, article in enumerate(articles, 1):
-                try:
-                    if article.name == 'h4':
-                        link = article.find('a')
-                        if not link:
-                            continue
-                        title = link.get_text(strip=True)
-                        url = link.get('href', '')
-                    else:
-                        title = article.get_text(strip=True)
-                        url = article.get('href', '')
-                    
-                    if not url.startswith('http'):
-                        url = base_url + url
-                    
-                    if not title or len(title) < 10:
+            # FIX: Deduplicate article list before fetching
+            unique_articles = []
+            for article in articles:
+                if article.name == 'h4':
+                    link = article.find('a')
+                    if not link:
                         continue
+                    url = link.get('href', '')
+                    title = link.get_text(strip=True)
+                else:
+                    url = article.get('href', '')
+                    title = article.get_text(strip=True)
+                
+                if not url.startswith('http'):
+                    url = base_url + url
+                
+                # Skip duplicates
+                if url in seen_urls or title in seen_titles:
+                    continue
+                if not title or len(title) < 10:
+                    continue
+                
+                seen_urls.add(url)
+                seen_titles.add(title)
+                unique_articles.append((title, url))
+                
+                if len(unique_articles) >= max_articles:
+                    break
+            
+            print(f"✓ Found {len(unique_articles)} unique articles\n")
+            
+            for idx, (title, url) in enumerate(unique_articles, 1):
+                try:
+                    print(f"[{idx}/{len(unique_articles)}] {title[:60]}...")
                     
-                    print(f"[{idx}/{len(articles)}] {title[:60]}...")
-                    
-                    # Get article content
                     try:
                         full_text = self.scrape_article_content(url)
                     except KeyboardInterrupt:
@@ -71,6 +85,11 @@ class CyberIncidentScraper:
                     if len(full_text) < 100:
                         print(f"    ⚠️  Skipping (insufficient content)\n")
                         continue
+                    
+                    # FIX: Show if CVEs found in article
+                    cves_found = re.findall(r'CVE-\d{4}-\d{4,7}', full_text, re.IGNORECASE)
+                    if cves_found:
+                        print(f"    🔍 CVEs found in article: {', '.join(set(cves_found))}")
                     
                     incident = {
                         'id': f'bc_{idx}_{int(time.time())}',
@@ -154,18 +173,16 @@ class CyberIncidentScraper:
         return sample_incidents
     
     def scrape_article_content(self, url):
-        """Fetch article content with better error handling"""
+        """Fetch full article content - improved for CVE extraction"""
         try:
             response = self.session.get(url, timeout=30)
             response.raise_for_status()
             
             soup = BeautifulSoup(response.content, 'html.parser')
             
-            # Remove unwanted elements
             for tag in soup(['script', 'style', 'nav', 'footer', 'aside', 'iframe', 'header']):
                 tag.decompose()
             
-            # Try multiple selectors
             selectors = [
                 {'name': 'div', 'class_': 'articleBody'},
                 {'name': 'article'},
@@ -181,13 +198,18 @@ class CyberIncidentScraper:
                     break
             
             if article_body:
-                paragraphs = article_body.find_all('p')
-                text = '\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 20])
+                # FIX: Get ALL text including code blocks and spans (CVEs often in <code> tags)
+                paragraphs = article_body.find_all(['p', 'li', 'code', 'span'])
+                text = '\n'.join([
+                    p.get_text(strip=True) 
+                    for p in paragraphs 
+                    if len(p.get_text(strip=True)) > 10
+                ])
                 return text
             
             return ""
             
-        except Exception as e:
+        except Exception:
             return ""
     
     def save_incidents(self, incidents, filename='cyber_incidents.json'):
@@ -206,14 +228,15 @@ class CyberIncidentScraper:
         print(f"📁 File: {filepath}")
         print(f"{'='*70}\n")
         
-        # Show statistics
         total_words = sum(len(inc['text'].split()) for inc in incidents)
         avg_words = total_words // len(incidents) if incidents else 0
+        total_cves = sum(len(re.findall(r'CVE-\d{4}-\d{4,7}', inc['text'], re.IGNORECASE)) for inc in incidents)
         
         print(f"📊 Statistics:")
         print(f"  Total incidents: {len(incidents)}")
         print(f"  Total words: {total_words:,}")
         print(f"  Average words per incident: {avg_words}")
+        print(f"  Total CVEs found across articles: {total_cves}")
         print(f"\n  Sample: {incidents[0]['title'][:60]}...")
         
         return filepath
@@ -226,7 +249,6 @@ def main():
     scraper = CyberIncidentScraper()
     incidents = []
     
-    # Try BleepingComputer first
     print("\n[Option 1] Trying BleepingComputer...")
     try:
         incidents = scraper.scrape_bleeping_computer(max_articles=10)
@@ -235,7 +257,6 @@ def main():
     except Exception as e:
         print(f"\n⚠️  Error during scraping: {e}")
     
-    # If scraping fails, use sample data
     if len(incidents) < 3:
         print("\n⚠️  Live scraping yielded few results")
         print("[Option 2] Using sample data for testing...\n")
